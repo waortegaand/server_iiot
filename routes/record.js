@@ -12,9 +12,11 @@ const dbo = require("../db/conn");
 const ObjectId = require("mongodb").ObjectId;
 
 // ----------------------------------------------------------------
-
+// Global variable
+let lastTemp = {};
+//
 recordRoutes.route("/").get(function (req, res){
-  res.end('Server connection . . .')
+  res.end('Server connection: main page')
 });
 
 // GET: sensor temperature
@@ -55,5 +57,35 @@ recordRoutes.route("/sensor/temp").post(function (req, res){
     });
 });
 
+
+// POST: temperature to "spisensor" collection
+recordRoutes.route("/termopar/tipok").post(function (req, res){
+  let db_connect = dbo.getDb("iiot_db");
+  let new_temp = {
+    tempTk : req.body.tempTk,
+  };
+  lastTemp = new_temp;
+  db_connect
+    .collection("spisensor").insertOne(new_temp, function(err, result){
+      if (err) throw err;
+      res.json(result);
+    });
+});
+
+// GET: last temperature of thermocouple type k sensor 
+recordRoutes.route("/spi/lasttemp").get(function (req, res){
+  res.json(lastTemp);
+});
+
+// GET: All sensor temperature values
+recordRoutes.route("/spi/all").get(function (req, res) {
+  let db_connect = dbo.getDb("iiot_db");
+  db_connect
+    .collection("spisensor").find({})
+      .toArray(function (err, result) {
+        if (err) throw err;
+        res.json(result);
+      });
+});
 
 module.exports = recordRoutes;
