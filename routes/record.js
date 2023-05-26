@@ -14,6 +14,7 @@ const ObjectId = require("mongodb").ObjectId;
 // ----------------------------------------------------------------
 // Global variable
 let lastTemp = {};
+let sensorPeriod = {};
 //
 recordRoutes.route("/").get(function (req, res){
   res.end('Server connection: main page')
@@ -86,6 +87,20 @@ recordRoutes.route("/spi/all").get(function (req, res) {
         if (err) throw err;
         res.json(result);
       });
+});
+
+// POST: sensor reading period
+recordRoutes.route("/spi/setperiod").post(function (req, res){
+  let new_period = {
+    period : req.body.period,
+  };
+  sensorPeriod = new_period;
+  res.send('POST request to the homepage\n')
+});
+
+// GET: last period of sensor 
+recordRoutes.route("/spi/getperiod").get(function (req, res){
+  res.json(sensorPeriod);
 });
 
 module.exports = recordRoutes;
