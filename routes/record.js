@@ -14,7 +14,7 @@ const ObjectId = require("mongodb").ObjectId;
 // ----------------------------------------------------------------
 // Global variable
 let lastTemp = {};
-let sensorPeriod = {};
+let sensorPeriod = {"period":5000};
 //
 recordRoutes.route("/").get(function (req, res){
   res.end('Server connection: main page')
@@ -101,6 +101,21 @@ recordRoutes.route("/spi/setperiod").post(function (req, res){
 // GET: last period of sensor 
 recordRoutes.route("/spi/getperiod").get(function (req, res){
   res.json(sensorPeriod);
+});
+
+// POST: temperature and counter 
+recordRoutes.route("/spi/settemp").post(function (req, res){
+  let db_connect = dbo.getDb("iiot_db");
+  let new_temp = {
+    temp : req.body.temp,
+    pos : req.body.pos,
+  };
+  db_connect
+    .collection("sensor").insertOne(new_temp, function(err, result){
+      if (err) throw err;
+      res.json(result);
+    });
+  res.send('POST request to the /spi/settemp \n')
 });
 
 module.exports = recordRoutes;
